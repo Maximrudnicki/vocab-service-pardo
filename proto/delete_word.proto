@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package vocab;
+
+option go_package = "vocab_service/proto";
+
+message DeleteRequest {
+    string token = 1;
+    uint32 word_id = 2;
+}

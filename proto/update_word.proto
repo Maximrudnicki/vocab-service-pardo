@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package vocab;
+
+option go_package = "vocab_service/proto";
+
+message UpdateRequest {
+    uint32 id = 1;
+    string definition = 2;
+    string token = 3;
+    // string word = 4;
+}
+

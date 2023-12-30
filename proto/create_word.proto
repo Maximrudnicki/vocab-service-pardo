@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package vocab;
+
+option go_package = "vocab_service/proto";
+
+message CreateRequest {
+    string word = 1;
+    string definition = 2;
+    string token = 3;
+}

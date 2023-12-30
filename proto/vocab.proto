@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package vocab;
+
+option go_package = "vocab_service/proto";
+
+import "create_word.proto";
+import "delete_word.proto";
+import "update_word.proto";
+import "google/protobuf/empty.proto";
+
+message VocabRequest {
+    string tokenType = 1; // Bearer
+    string token = 2;
+}
+
+message VocabResponse {
+    uint32 id = 1;
+    string word = 2;
+    string definition = 3;
+}
+
+service VocabService {
+    rpc CreateWord(CreateRequest) returns (google.protobuf.Empty);
+    rpc DeleteWord(DeleteRequest) returns (google.protobuf.Empty);
+    rpc UpdateWord(UpdateRequest) returns (google.protobuf.Empty);
+    rpc GetWords(VocabRequest) returns (stream VocabResponse);
+}
