@@ -7,8 +7,6 @@ import (
 )
 
 func ValidateToken(c pb.AuthenticationServiceClient, token string) (*pb.UserIdResponse, error) {
-	log.Println("---Validate Token was invoked---")
-
 	req := &pb.TokenRequest{
 		Token: token,
 	}	
@@ -19,6 +17,5 @@ func ValidateToken(c pb.AuthenticationServiceClient, token string) (*pb.UserIdRe
 		return nil, err
 	}
 
-	log.Printf("ID: %v\n", res)
 	return res, nil
 }

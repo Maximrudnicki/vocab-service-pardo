@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 
 	"vocab_service/cmd/model"
 	u "vocab_service/cmd/utils"
@@ -16,7 +15,6 @@ import (
 // GetWords, CreateWord, DeleteWord, UpdateWord
 
 func (s *Server) GetWords(in *pb.VocabRequest, stream pb.VocabService_GetWordsServer) error {
-	log.Println("-- GetWords Server --")
 	userId, err := u.GetUserIdFromToken(in.Token)
 	if err != nil {
 		return err
@@ -29,9 +27,15 @@ func (s *Server) GetWords(in *pb.VocabRequest, stream pb.VocabService_GetWordsSe
 
 	for _, word := range words {
 		stream.Send(&pb.VocabResponse{
-			Id:         word.Id,
-			Word:       word.Word,
-			Definition: word.Definition,
+			Id:              word.Id,
+			Word:            word.Word,
+			Definition:      word.Definition,
+			CreatedAt:       u.ToTimestamp(word.CreatedAt),
+			IsLearned:       word.IsLearned,
+			Cards:           word.Cards,
+			WordTranslation: word.WordTranslation,
+			Constructor:     word.Constructor,
+			WordAudio:       word.WordAudio,
 		})
 	}
 
@@ -61,7 +65,7 @@ func (s *Server) DeleteWord(ctx context.Context, in *pb.DeleteRequest) (*emptypb
 		return nil, err
 	}
 
-	if is_owner := s.WordRepository.IsOwnerOfWord(userId, in.WordId); is_owner == true {
+	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.WordId); isOwner == true {
 		s.WordRepository.Delete(in.WordId)
 	} else {
 		return nil, status.Errorf(
@@ -80,17 +84,41 @@ func (s *Server) UpdateWord(ctx context.Context, in *pb.UpdateRequest) (*emptypb
 	}
 
 	updatedWord := model.Word{
-		Id: in.Id,
+		Id:         in.Id,
 		Definition: in.Definition,
 		UserId:     userId,
 	}
 
-	if is_owner := s.WordRepository.IsOwnerOfWord(userId, in.Id); is_owner == true {
+	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.Id); isOwner == true {
 		s.WordRepository.Update(updatedWord)
 	} else {
 		return nil, status.Errorf(
 			codes.PermissionDenied,
 			"You are not allowed to update the word",
+		)
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Server) ManageTrainings(ctx context.Context, in *pb.ManageTrainingsRequest) (*emptypb.Empty, error) {
+	userId, err := u.GetUserIdFromToken(in.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.Id); !isOwner {
+		return nil, status.Errorf(
+			codes.PermissionDenied,
+			"You are not allowed to manage trainings for this word",
+		)
+	}
+
+	err_mt := s.WordRepository.ManageTrainings(in.Res, in.Training, in.Id)
+	if err_mt != nil {
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			"Please check the training name and other arguments",
 		)
 	}
 

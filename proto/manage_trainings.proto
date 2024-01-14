@@ -4,9 +4,9 @@ package vocab;
 
 option go_package = "vocab_service/proto";
 
-message UpdateRequest {
+message ManageTrainingsRequest {
     uint32 id = 1;
-    string definition = 2;
-    string token = 3;
+    bool res = 2;
+    string training = 3;
+    string token = 4;
 }
-

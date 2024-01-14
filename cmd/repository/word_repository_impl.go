@@ -11,6 +11,40 @@ type WordRepositoryImpl struct {
 	Db *gorm.DB
 }
 
+// ManageTrainings implements WordRepository.
+func (w *WordRepositoryImpl) ManageTrainings(res bool, training string, wordId uint32) error {
+	var word model.Word
+	result := w.Db.Where("id = ?", wordId).Find(&word)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+
+	switch training {
+	case "cards":
+		word.Cards = res
+	case "word_translation":
+		word.WordTranslation = res
+	case "constructor":
+		word.Constructor = res
+	case "word_audio":
+		word.WordAudio = res
+	default:
+		return errors.New("Unknow training")
+	}
+
+	if word.Cards == true && word.WordTranslation == true && word.Constructor == true && word.WordAudio == true {
+		word.IsLearned = true
+	} else {
+		word.IsLearned = false
+	}
+
+	result = w.Db.Save(&word)
+	if result.Error != nil {
+		panic(result.Error)
+	}
+	return nil
+}
+
 // Delete implements WordRepository.
 func (w *WordRepositoryImpl) Delete(wordId uint32) {
 	var word model.Word
