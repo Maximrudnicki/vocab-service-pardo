@@ -25,7 +25,10 @@ func main() {
 	//Database
 	db := config.ConnectionDB(&loadConfig)
 
-	db.Table("words").AutoMigrate(&model.Word{})
+	db_table_err := db.Table("words").AutoMigrate(&model.Word{})
+	if db_table_err != nil {
+		log.Fatalf("Databese table error: %v\n", db_table_err)
+	}
 
 	//Init Repository
 	wordRepository := repository.NewWordRepositoryImpl(db)

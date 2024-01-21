@@ -26,7 +26,7 @@ func (s *Server) GetWords(in *pb.VocabRequest, stream pb.VocabService_GetWordsSe
 	}
 
 	for _, word := range words {
-		stream.Send(&pb.VocabResponse{
+		stream_err := stream.Send(&pb.VocabResponse{
 			Id:              word.Id,
 			Word:            word.Word,
 			Definition:      word.Definition,
@@ -37,6 +37,9 @@ func (s *Server) GetWords(in *pb.VocabRequest, stream pb.VocabService_GetWordsSe
 			Constructor:     word.Constructor,
 			WordAudio:       word.WordAudio,
 		})
+		if stream_err != nil {
+			return stream_err
+		}
 	}
 
 	return nil
@@ -65,7 +68,7 @@ func (s *Server) DeleteWord(ctx context.Context, in *pb.DeleteRequest) (*emptypb
 		return nil, err
 	}
 
-	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.WordId); isOwner == true {
+	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.WordId); isOwner {
 		s.WordRepository.Delete(in.WordId)
 	} else {
 		return nil, status.Errorf(
@@ -89,7 +92,7 @@ func (s *Server) UpdateWord(ctx context.Context, in *pb.UpdateRequest) (*emptypb
 		UserId:     userId,
 	}
 
-	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.Id); isOwner == true {
+	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.Id); isOwner {
 		s.WordRepository.Update(updatedWord)
 	} else {
 		return nil, status.Errorf(

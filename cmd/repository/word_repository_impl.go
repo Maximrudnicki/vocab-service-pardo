@@ -32,7 +32,7 @@ func (w *WordRepositoryImpl) ManageTrainings(res bool, training string, wordId u
 		return errors.New("Unknow training")
 	}
 
-	if word.Cards == true && word.WordTranslation == true && word.Constructor == true && word.WordAudio == true {
+	if word.Cards && word.WordTranslation && word.Constructor && word.WordAudio {
 		word.IsLearned = true
 	} else {
 		word.IsLearned = false
