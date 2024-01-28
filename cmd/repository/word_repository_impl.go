@@ -16,7 +16,7 @@ func (w *WordRepositoryImpl) ManageTrainings(res bool, training string, wordId u
 	var word model.Word
 	result := w.Db.Where("id = ?", wordId).Find(&word)
 	if result.Error != nil {
-		panic(result.Error)
+		return errors.New("Cannot find word")
 	}
 
 	switch training {
@@ -40,7 +40,7 @@ func (w *WordRepositoryImpl) ManageTrainings(res bool, training string, wordId u
 
 	result = w.Db.Save(&word)
 	if result.Error != nil {
-		panic(result.Error)
+		return errors.New("Cannot save word")
 	}
 	return nil
 }
@@ -58,6 +58,8 @@ func (w *WordRepositoryImpl) Delete(wordId uint32) {
 func (w *WordRepositoryImpl) FindByUserId(userId uint32) ([]model.Word, error) {
 	var words []model.Word
 	result := w.Db.Where("user_id = ?", userId).Find(&words)
+	// Should return empty slice in case if user exists. 
+	// It's made for case if user exists but have not added any words yet
 	if result != nil {
 		return words, nil
 	} else {
@@ -66,23 +68,25 @@ func (w *WordRepositoryImpl) FindByUserId(userId uint32) ([]model.Word, error) {
 }
 
 // Save implements WordRepository.
-func (w *WordRepositoryImpl) Save(word model.Word) {
+func (w *WordRepositoryImpl) Save(word model.Word) error {
 	result := w.Db.Create(&word)
 	if result.Error != nil {
-		panic(result.Error)
+		return errors.New("Cannot save word")
 	}
+	return nil
 }
 
 // Update implements WordRepository.
-func (w *WordRepositoryImpl) Update(word model.Word) {
+func (w *WordRepositoryImpl) Update(word model.Word) error {
 	var updateWord = &model.Word{
 		Definition: word.Definition,
 	}
 
 	result := w.Db.Model(&word).Where("id = ?", word.Id).Updates(updateWord)
 	if result.Error != nil {
-		panic(result.Error)
+		return errors.New("Cannot update word")
 	}
+	return nil
 }
 
 // IsOwnerOfWord implements WordRepository.

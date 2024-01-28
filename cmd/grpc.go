@@ -57,7 +57,10 @@ func (s *Server) CreateWord(ctx context.Context, in *pb.CreateRequest) (*emptypb
 		UserId:     userId,
 	}
 
-	s.WordRepository.Save(newWord)
+	err = s.WordRepository.Save(newWord)
+	if err != nil {
+		return nil, err
+	}
 
 	return &emptypb.Empty{}, nil
 }
@@ -93,7 +96,10 @@ func (s *Server) UpdateWord(ctx context.Context, in *pb.UpdateRequest) (*emptypb
 	}
 
 	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.Id); isOwner {
-		s.WordRepository.Update(updatedWord)
+		err = s.WordRepository.Update(updatedWord)
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		return nil, status.Errorf(
 			codes.PermissionDenied,
