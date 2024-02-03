@@ -58,7 +58,7 @@ func (w *WordRepositoryImpl) Delete(wordId uint32) {
 func (w *WordRepositoryImpl) FindByUserId(userId uint32) ([]model.Word, error) {
 	var words []model.Word
 	result := w.Db.Where("user_id = ?", userId).Find(&words)
-	// Should return empty slice in case if user exists. 
+	// Should return empty slice in case if user exists.
 	// It's made for case if user exists but have not added any words yet
 	if result != nil {
 		return words, nil
@@ -78,13 +78,22 @@ func (w *WordRepositoryImpl) Save(word model.Word) error {
 
 // Update implements WordRepository.
 func (w *WordRepositoryImpl) Update(word model.Word) error {
-	var updateWord = &model.Word{
+	var updatedWord = &model.Word{
 		Definition: word.Definition,
 	}
 
-	result := w.Db.Model(&word).Where("id = ?", word.Id).Updates(updateWord)
+	result := w.Db.Model(&word).Where("id = ?", word.Id).Updates(updatedWord)
 	if result.Error != nil {
 		return errors.New("Cannot update word")
+	}
+	return nil
+}
+
+// UpdateStatus implements WordRepository.
+func (w *WordRepositoryImpl) UpdateStatus(word model.Word) error {
+	result := w.Db.Model(&word).Where("id = ?", word.Id).Update("is_learned", word.IsLearned)
+	if result.Error != nil {
+		return errors.New("Cannot update status")
 	}
 	return nil
 }

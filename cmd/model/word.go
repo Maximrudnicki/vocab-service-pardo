@@ -9,7 +9,7 @@ type Word struct {
 	UserId     uint32    `gorm:"not null"`
 	CreatedAt  time.Time `gorm:"default:now()"`
 
-	IsLearned       bool `gorm:"default:false"`
+	IsLearned       bool `gorm:"default:false"` // status of the word
 	Cards           bool `gorm:"default:false"`
 	WordTranslation bool `gorm:"default:false"`
 	Constructor     bool `gorm:"default:false"`

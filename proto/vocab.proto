@@ -33,6 +33,7 @@ service VocabService {
     rpc CreateWord(CreateRequest) returns (google.protobuf.Empty);
     rpc DeleteWord(DeleteRequest) returns (google.protobuf.Empty);
     rpc UpdateWord(UpdateRequest) returns (google.protobuf.Empty);
+    rpc UpdateWordStatus(UpdateStatusRequest) returns (google.protobuf.Empty);
     rpc ManageTrainings(ManageTrainingsRequest) returns (google.protobuf.Empty);
     rpc GetWords(VocabRequest) returns (stream VocabResponse);
 }

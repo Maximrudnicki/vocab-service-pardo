@@ -30,11 +30,11 @@ func TestWordRepository(t *testing.T) {
 	wr := repository.NewWordRepositoryImpl(db)
 
 	testWord := model.Word{
-		Id:              1,
-		Word:            "water",
-		Definition:      "вода",
-		UserId:          1,
-		CreatedAt:       time.Now(),
+		Id:         1,
+		Word:       "water",
+		Definition: "вода",
+		UserId:     1,
+		CreatedAt:  time.Now(),
 
 		IsLearned:       false,
 		Cards:           false,
@@ -51,9 +51,9 @@ func TestWordRepository(t *testing.T) {
 
 	t.Run("Test Update Word", func(t *testing.T) {
 		updatedWord := model.Word{
-			Id:              testWord.Id,
-			Definition:      "водичка",
-			UserId:          testWord.UserId,
+			Id:         testWord.Id,
+			Definition: "водичка",
+			UserId:     testWord.UserId,
 		}
 		err := wr.Update(updatedWord)
 		assert.NoError(t, err, "Expected no error while updating the word")
@@ -62,7 +62,33 @@ func TestWordRepository(t *testing.T) {
 		assert.Equal(t, words[0].Definition, "водичка", "Expected to be \"водичка\"")
 	})
 
-	t.Run("Test ManageTrainings Word", func(t *testing.T) {
+	t.Run("Test UpdateStatus True", func(t *testing.T) {
+		updatedWord := model.Word{
+			Id:        testWord.Id,
+			IsLearned: true,
+			UserId:    testWord.UserId,
+		}
+		err := wr.UpdateStatus(updatedWord)
+		assert.NoError(t, err, "Expected no error while updating the word")
+
+		words, _ := wr.FindByUserId(1)
+		assert.True(t, words[0].IsLearned, "Expected to be true")
+	})
+
+	t.Run("Test UpdateStatus False", func(t *testing.T) {
+		updatedWord := model.Word{
+			Id:        testWord.Id,
+			IsLearned: false,
+			UserId:    testWord.UserId,
+		}
+		err := wr.UpdateStatus(updatedWord)
+		assert.NoError(t, err, "Expected no error while updating the word")
+
+		words, _ := wr.FindByUserId(1)
+		assert.False(t, words[0].IsLearned, "Expected to be false")
+	})
+
+	t.Run("Test ManageTrainings", func(t *testing.T) {
 		err := wr.ManageTrainings(true, "cards", testWord.Id)
 		assert.NoError(t, err, "Expected no error while manage cards")
 
@@ -85,12 +111,12 @@ func TestWordRepository(t *testing.T) {
 		assert.True(t, words[0].IsLearned, "should be already learned")
 	})
 
-	t.Run("Test IsOwnerOfWord Word", func(t *testing.T) {
+	t.Run("Test IsOwnerOfWord", func(t *testing.T) {
 		assert.True(t, wr.IsOwnerOfWord(testWord.UserId, testWord.Id), "Expected to be the owner of the word")
 		assert.False(t, wr.IsOwnerOfWord(5, testWord.Id), "Expected to not be the owner of the word")
 	})
 
-	t.Run("Test FindByUserId Word", func(t *testing.T) {
+	t.Run("Test FindByUserId", func(t *testing.T) {
 		words, err := wr.FindByUserId(1)
 		assert.NoError(t, err, "Expected no error while finding words by id")
 		assert.NotEmpty(t, words, "Should return words")

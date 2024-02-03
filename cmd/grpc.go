@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// GetWords, CreateWord, DeleteWord, UpdateWord
+// GetWords, CreateWord, DeleteWord, UpdateWord, ManageTrainings
 
 func (s *Server) GetWords(in *pb.VocabRequest, stream pb.VocabService_GetWordsServer) error {
 	userId, err := u.GetUserIdFromToken(in.Token)
@@ -97,6 +97,33 @@ func (s *Server) UpdateWord(ctx context.Context, in *pb.UpdateRequest) (*emptypb
 
 	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.Id); isOwner {
 		err = s.WordRepository.Update(updatedWord)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, status.Errorf(
+			codes.PermissionDenied,
+			"You are not allowed to update the word",
+		)
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Server) UpdateWordStatus(ctx context.Context, in *pb.UpdateStatusRequest) (*emptypb.Empty, error) {
+	userId, err := u.GetUserIdFromToken(in.Token)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedWord := model.Word{
+		Id:        in.Id,
+		IsLearned: in.IsLearned,
+		UserId:    userId,
+	}
+
+	if isOwner := s.WordRepository.IsOwnerOfWord(userId, in.Id); isOwner {
+		err = s.WordRepository.UpdateStatus(updatedWord)
 		if err != nil {
 			return nil, err
 		}
