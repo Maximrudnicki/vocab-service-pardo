@@ -12,7 +12,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-// GetWords, CreateWord, DeleteWord, UpdateWord, ManageTrainings
+// GetWords, CreateWord, DeleteWord, UpdateWord, UpdateWordStatus, ManageTrainings
 
 func (s *Server) GetWords(in *pb.VocabRequest, stream pb.VocabService_GetWordsServer) error {
 	userId, err := u.GetUserIdFromToken(in.Token)
