@@ -4,9 +4,11 @@ package vocab;
 
 option go_package = "vocab_service/proto";
 
+import "add_word_to_student.proto";
 import "create_word.proto";
 import "delete_word.proto";
 import "update_word.proto";
+import "find_word.proto";
 import "manage_trainings.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
@@ -30,10 +32,12 @@ message VocabResponse {
 }
 
 service VocabService {
+    rpc AddWordToStudent(AddWordToStudentRequest) returns (AddWordToStudentResponse);
     rpc CreateWord(CreateRequest) returns (google.protobuf.Empty);
     rpc DeleteWord(DeleteRequest) returns (google.protobuf.Empty);
     rpc UpdateWord(UpdateRequest) returns (google.protobuf.Empty);
     rpc UpdateWordStatus(UpdateStatusRequest) returns (google.protobuf.Empty);
     rpc ManageTrainings(ManageTrainingsRequest) returns (google.protobuf.Empty);
     rpc GetWords(VocabRequest) returns (stream VocabResponse);
+    rpc FindWord(WordRequest) returns (VocabResponse);
 }

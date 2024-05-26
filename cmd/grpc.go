@@ -45,6 +45,25 @@ func (s *Server) GetWords(in *pb.VocabRequest, stream pb.VocabService_GetWordsSe
 	return nil
 }
 
+func (s *Server) FindWord(ctx context.Context, in *pb.WordRequest) (*pb.VocabResponse, error) {
+	word, err := s.WordRepository.FindById(in.WordId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.VocabResponse{
+		Id:              word.Id,
+		Word:            word.Word,
+		Definition:      word.Definition,
+		CreatedAt:       u.ToTimestamp(word.CreatedAt),
+		IsLearned:       word.IsLearned,
+		Cards:           word.Cards,
+		WordTranslation: word.WordTranslation,
+		Constructor:     word.Constructor,
+		WordAudio:       word.WordAudio,
+	}, nil
+}
+
 func (s *Server) CreateWord(ctx context.Context, in *pb.CreateRequest) (*emptypb.Empty, error) {
 	userId, err := u.GetUserIdFromToken(in.Token)
 	if err != nil {
@@ -63,6 +82,21 @@ func (s *Server) CreateWord(ctx context.Context, in *pb.CreateRequest) (*emptypb
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func (s *Server) AddWordToStudent(ctx context.Context, in *pb.AddWordToStudentRequest) (*pb.AddWordToStudentResponse, error) {
+	newWord := model.Word{
+		Word:       in.Word,
+		Definition: in.Definition,
+		UserId:     in.UserId,
+	}
+
+	res, err := s.WordRepository.Add(newWord)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.AddWordToStudentResponse{WordId: res}, nil
 }
 
 func (s *Server) DeleteWord(ctx context.Context, in *pb.DeleteRequest) (*emptypb.Empty, error) {

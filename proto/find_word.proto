@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package vocab;
+
+option go_package = "vocab_service/proto";
+
+message WordRequest {
+    uint32 word_id = 1;
+}

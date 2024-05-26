@@ -16,7 +16,7 @@ func (w *WordRepositoryImpl) ManageTrainings(res bool, training string, wordId u
 	var word model.Word
 	result := w.Db.Where("id = ?", wordId).Find(&word)
 	if result.Error != nil {
-		return errors.New("Cannot find word")
+		return errors.New("cannot find word")
 	}
 
 	switch training {
@@ -29,7 +29,7 @@ func (w *WordRepositoryImpl) ManageTrainings(res bool, training string, wordId u
 	case "word_audio":
 		word.WordAudio = res
 	default:
-		return errors.New("Unknow training")
+		return errors.New("unknow training")
 	}
 
 	if word.Cards && word.WordTranslation && word.Constructor && word.WordAudio {
@@ -40,7 +40,7 @@ func (w *WordRepositoryImpl) ManageTrainings(res bool, training string, wordId u
 
 	result = w.Db.Save(&word)
 	if result.Error != nil {
-		return errors.New("Cannot save word")
+		return errors.New("cannot save word")
 	}
 	return nil
 }
@@ -67,11 +67,31 @@ func (w *WordRepositoryImpl) FindByUserId(userId uint32) ([]model.Word, error) {
 	}
 }
 
+// FindByUserId implements WordRepository.
+func (w *WordRepositoryImpl) FindById(wordId uint32) (model.Word, error) {
+	var word model.Word
+	result := w.Db.Where("id = ?", wordId).Find(&word)
+	if result != nil {
+		return word, nil
+	} else {
+		return word, errors.New("word is not found")
+	}
+}
+
+// Add implements WordRepository.
+func (w *WordRepositoryImpl) Add(word model.Word) (uint32, error) {
+	result := w.Db.Create(&word)
+	if result.Error != nil {
+		return 0, errors.New("cannot add word")
+	}
+	return word.Id, nil
+}
+
 // Save implements WordRepository.
 func (w *WordRepositoryImpl) Save(word model.Word) error {
 	result := w.Db.Create(&word)
 	if result.Error != nil {
-		return errors.New("Cannot save word")
+		return errors.New("cannot save word")
 	}
 	return nil
 }
@@ -84,7 +104,7 @@ func (w *WordRepositoryImpl) Update(word model.Word) error {
 
 	result := w.Db.Model(&word).Where("id = ?", word.Id).Updates(updatedWord)
 	if result.Error != nil {
-		return errors.New("Cannot update word")
+		return errors.New("cannot update word")
 	}
 	return nil
 }
@@ -93,7 +113,7 @@ func (w *WordRepositoryImpl) Update(word model.Word) error {
 func (w *WordRepositoryImpl) UpdateStatus(word model.Word) error {
 	result := w.Db.Model(&word).Where("id = ?", word.Id).Update("is_learned", word.IsLearned)
 	if result.Error != nil {
-		return errors.New("Cannot update status")
+		return errors.New("cannot update status")
 	}
 	return nil
 }
